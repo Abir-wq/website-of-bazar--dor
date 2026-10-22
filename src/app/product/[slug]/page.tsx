@@ -1,3 +1,4 @@
+import { AddToCartButton } from '@/components/cart';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getCatalog } from '@/lib/products';
@@ -44,11 +45,14 @@ export default async function Details({ params }: { params: Promise<{ slug: stri
             {difference > 0 && <> · {bn(difference)} টাকা</>}
           </p>
         </div>
-        <div className="today-price">
-          <p className="muted">আজকের দাম</p>
-          <strong>{bn(p.today)}</strong>
-          <p className="muted">টাকা / {unit(p.unit)}</p>
-          <ChangeBadge product={p} />
+        <div className="detail-price-actions">
+          <div className="today-price">
+            <p className="muted">আজকের দাম</p>
+            <strong>{bn(p.today)}</strong>
+            <p className="muted">টাকা / {unit(p.unit)}</p>
+            <ChangeBadge product={p} />
+          </div>
+          <AddToCartButton product={p} />
         </div>
       </section>
       <section className="market-panel panel">

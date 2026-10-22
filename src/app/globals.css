@@ -1330,3 +1330,141 @@ input:focus {
     transition: none !important;
   }
 }
+
+/* Shopping cart */
+.product-card-details {
+  display: block;
+  flex: 1;
+}
+.cart-toggle {
+  width: 100%;
+  margin-top: 14px;
+  padding: 8px 10px;
+  min-height: 38px;
+  border: 1px solid var(--green);
+  border-radius: 8px;
+  background: var(--green);
+  color: white;
+  font-weight: 600;
+}
+.cart-toggle:hover {
+  background: #047534;
+}
+.cart-toggle-remove {
+  background: transparent;
+  color: var(--up);
+  border-color: var(--up);
+}
+.cart-toggle-remove:hover {
+  background: #fff1f1;
+}
+.cart-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  font-weight: 600;
+}
+.cart-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding-inline: 5px;
+  border-radius: 999px;
+  background: var(--green);
+  color: white;
+  font-size: 12px;
+}
+.cart-page {
+  padding-top: 32px;
+  padding-bottom: 72px;
+}
+.cart-page > h1 {
+  margin-bottom: 20px;
+  font-size: 28px;
+  font-weight: 700;
+}
+.cart-items {
+  display: grid;
+  gap: 14px;
+}
+.cart-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+}
+.cart-item-description {
+  flex: 1;
+  min-width: 0;
+}
+.cart-item-description h2 {
+  font-size: 18px;
+  font-weight: 600;
+}
+.cart-item-description a:hover {
+  text-decoration: underline;
+}
+.cart-item-description p {
+  color: var(--muted);
+}
+.cart-total {
+  margin-top: 24px;
+  padding: 24px;
+}
+.cart-total h2 {
+  font-size: 22px;
+  font-weight: 700;
+}
+.cart-total p {
+  margin-top: 8px;
+  color: var(--muted);
+}
+.cart-empty {
+  padding: 40px 20px;
+  text-align: center;
+}
+.cart-empty h2 {
+  font-size: 24px;
+  font-weight: 600;
+}
+.cart-empty p {
+  margin: 10px 0 24px;
+  color: var(--muted);
+}
+.detail-price-actions {
+  width: 175px;
+  flex-shrink: 0;
+}
+.detail-price-actions .today-price {
+  width: 100%;
+}
+@media (max-width: 600px) {
+  .header-main {
+    height: auto;
+    min-height: 68px;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-block: 12px;
+  }
+  .auth-nav {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .cart-item {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px;
+  }
+  .cart-total {
+    padding: 20px;
+  }
+  .cart-total h2 {
+    font-size: 20px;
+  }
+  .detail-price-actions {
+    width: 100%;
+  }
+}

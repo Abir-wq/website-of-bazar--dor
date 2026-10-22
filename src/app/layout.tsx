@@ -5,6 +5,7 @@ import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { Providers } from '@/components/providers';
 import { fallbackProducts } from '@/lib/catalog';
+import { CartProvider } from '@/components/cart';
 import './globals.css';
 const hind = localFont({
   src: [
@@ -24,15 +25,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="bn" className={hind.variable}>
       <body>
-        <a href="#main-content" className="skip-link">
-          মূল বিষয়বস্তুতে যান
-        </a>
-        <Suspense>
-          <Header products={fallbackProducts} />
-        </Suspense>
-        <main id="main-content">{children}</main>
-        <Footer />
-        <Providers />
+        <CartProvider>
+          <a href="#main-content" className="skip-link">
+            মূল বিষয়বস্তুতে যান
+          </a>
+          <Suspense>
+            <Header products={fallbackProducts} />
+          </Suspense>
+          <main id="main-content">{children}</main>
+          <Footer />
+          <Providers />
+        </CartProvider>
       </body>
     </html>
   );

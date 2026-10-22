@@ -1,18 +1,28 @@
-# দ্রুত শুরু
+# আপডেটেড প্যাকেজ চালু করুন
 
-১. Node.js 22.16+ LTS ইনস্টল করুন।
-২. ZIP extract করুন। `bazar-dor` ফোল্ডারে টার্মিনাল খুলুন।
-৩. একের পর এক চালান:
+১. ZIP-টি একটি নতুন ফোল্ডারে Extract করুন।
+২. Extract করা ফোল্ডারের ভেতরের **bazar-dor** ফোল্ডারটি VS Code-এ Open Folder করুন। এই ফোল্ডারেই package.json ও package-lock.json আছে।
+৩. Terminal-এ নিচের command **একটি করে** চালান; আগেরটি সফল হলে পরেরটি:
 
-```bash
+```powershell
 npm ci
+```
+
+```powershell
 npm run setup
+```
+
+```powershell
 npm run dev
 ```
 
-৪. http://localhost:3000 খুলুন।
-৫. সাইন আপ করে নিজের অ্যাকাউন্ট তৈরি করুন, তারপর সাইন ইন করুন।
+৪. http://localhost:3000 খুলুন। অন্য server 3000 port ব্যবহার করলে আগে সেখানে Ctrl+C দিয়ে বন্ধ করুন।
+৫. পণ্যের কার্ডে “কার্টে যোগ করুন” চাপুন। Header-এর “কার্ট” খুলুন। “সরান” দিয়ে পণ্য সরান। Refresh করে সংরক্ষণ পরীক্ষা করুন।
 
-ইমেইল/পাসওয়ার্ড ব্যবহার করতে কোনো বাইরের database account লাগে না। স্থানীয় SQLite স্বয়ংক্রিয়ভাবে প্রস্তুত হয়। Google/GitHub login পরে `.env.local`-এ credentials দিয়ে সক্রিয় করতে পারবেন।
+## পুরোনো অ্যাকাউন্ট রাখতে চাইলে
 
-Windows-এ command prompt / PowerShell দুটোতেই ওপরের command চলে। Native SQLite package install করতে সমস্যা হলে বর্তমান Node.js LTS ব্যবহার করুন। সম্পূর্ণ নির্দেশনা `README.md`-এ আছে।
+পুরোনো app বন্ধ করে পুরোনো project-এর **.env.local** ফাইল এবং **data** ফোল্ডারটি নতুন **bazar-dor** ফোল্ডারে copy করুন। তারপর setup command আগে থেকে থাকা configuration অপরিবর্তিত রাখবে। পুরোনো project মুছবেন না যতক্ষণ না নতুনটি ঠিকমতো চলছে।
+
+ZIP-এ node_modules দেওয়া হয়নি; নতুন ফোল্ডারে npm ci অবশ্যই চালাতে হবে। কোনো source file হাতে edit করতে হবে না।
+
+Google/GitHub OAuth এখনও নিজের credentials দিয়ে চালু করতে হবে। বিস্তারিত README.md-এ আছে।

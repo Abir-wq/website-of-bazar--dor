@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { CartLink } from '@/components/cart';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
@@ -75,6 +76,7 @@ export function Header({ products }: { products: Product[] }) {
           </div>
         </Link>
         <div className="auth-nav">
+          <CartLink />
           {isPending ? (
             <span className="auth-placeholder skeleton" />
           ) : session ? (

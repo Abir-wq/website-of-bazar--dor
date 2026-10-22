@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { AddToCartButton } from '@/components/cart';
 import { bn, changePercent, unit, type Product } from '@/lib/catalog';
 export function ChangeBadge({ product: p }: { product: Product }) {
   return (
@@ -13,30 +14,33 @@ export function ChangeBadge({ product: p }: { product: Product }) {
 }
 export function ProductCard({ product: p }: { product: Product }) {
   return (
-    <Link
-      href={`/product/${p.slug}`}
-      className="product-card panel"
-      aria-label={`${p.nameBn}, ${bn(p.today)} টাকা প্রতি ${unit(p.unit)}`}
-    >
-      <div className="product-top">
-        <span className="product-emoji" aria-hidden="true">
-          {p.image}
-        </span>
-        <div>
-          <h3>{p.nameBn}</h3>
-          <p>প্রতি {unit(p.unit)}</p>
+    <article className="product-card panel">
+      <Link
+        href={`/product/${p.slug}`}
+        className="product-card-details"
+        aria-label={`${p.nameBn}, ${bn(p.today)} টাকা প্রতি ${unit(p.unit)}`}
+      >
+        <div className="product-top">
+          <span className="product-emoji" aria-hidden="true">
+            {p.image}
+          </span>
+          <div>
+            <h3>{p.nameBn}</h3>
+            <p>প্রতি {unit(p.unit)}</p>
+          </div>
         </div>
-      </div>
-      <div className="price-row">
-        <div>
-          <span className="price-label">আজকের দাম</span>
-          <p className="price">
-            <strong>{bn(p.today)}</strong> টাকা
-          </p>
+        <div className="price-row">
+          <div>
+            <span className="price-label">আজকের দাম</span>
+            <p className="price">
+              <strong>{bn(p.today)}</strong> টাকা
+            </p>
+          </div>
+          <ChangeBadge product={p} />
         </div>
-        <ChangeBadge product={p} />
-      </div>
-    </Link>
+      </Link>
+      <AddToCartButton product={p} />
+    </article>
   );
 }
 export function ProductGrid({ products }: { products: Product[] }) {
