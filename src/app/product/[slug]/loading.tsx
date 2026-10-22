@@ -1,1 +1,1 @@
-export {Loading as default} from '@/components/loading';
+export { Loading as default } from '@/components/loading';

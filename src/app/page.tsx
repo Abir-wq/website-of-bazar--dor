@@ -1,5 +1,55 @@
-import {getCatalog} from '@/lib/products';
-import {bn,movers} from '@/lib/catalog';
-import {ProductGrid} from '@/components/product-card';
-import {Today} from '@/components/header';
-export default async function Home(){const {products,isSnapshot}=await getCatalog();return <div className="container home-page"><section className="hero panel"><div className="hero-copy"><span className="date-pill"><Today/></span><h1>আজকের বাজারের দাম এক নজরে</h1><p>চাল, ডাল, তেল, সবজি, মাছ, মাংস, ডিম ও মসলার দাম — বাজারভিত্তিক বিস্তারিত, গড়, সর্বনিম্ন-সর্বাধিক এবং দামের পরিবর্তন এক জায়গায়।</p><a href="#সব-পণ্য" className="button">সব পণ্য দেখুন</a></div><img className="hero-image" src="/images/bazar-hero.png" alt="তাজা ফলভর্তি বাজারের ঝুড়ি" width="240" height="230"/></section>{isSnapshot&&<p className="data-notice" role="status">লাইভ ডেটা এখন পাওয়া যাচ্ছে না। সংরক্ষিত নমুনা মূল্য দেখানো হচ্ছে (২২ অক্টোবর ২০২৬)।</p>}<section className="home-section"><h2><span className="up">▲</span> আজ দাম বেড়েছে</h2><ProductGrid products={movers(products,'up')}/></section><section className="home-section"><h2><span className="down">▼</span> আজ দাম কমেছে</h2><ProductGrid products={movers(products,'down')}/></section><section className="home-section all-products" id="সব-পণ্য"><h2>সব পণ্য</h2><p className="section-subtitle">মোট {bn(products.length)}টি পণ্য দেখানো হচ্ছে</p><ProductGrid products={products}/></section></div>;}
+import { getCatalog } from '@/lib/products';
+import { bn, movers } from '@/lib/catalog';
+import { ProductGrid } from '@/components/product-card';
+import { Today } from '@/components/header';
+export default async function Home() {
+  const { products, isSnapshot } = await getCatalog();
+  return (
+    <div className="container home-page">
+      <section className="hero panel">
+        <div className="hero-copy">
+          <span className="date-pill">
+            <Today />
+          </span>
+          <h1>আজকের বাজারের দাম এক নজরে</h1>
+          <p>
+            চাল, ডাল, তেল, সবজি, মাছ, মাংস, ডিম ও মসলার দাম — বাজারভিত্তিক বিস্তারিত, গড়,
+            সর্বনিম্ন-সর্বাধিক এবং দামের পরিবর্তন এক জায়গায়।
+          </p>
+          <a href="#সব-পণ্য" className="button">
+            সব পণ্য দেখুন
+          </a>
+        </div>
+        <img
+          className="hero-image"
+          src="/images/bazar-hero.png"
+          alt="তাজা ফলভর্তি বাজারের ঝুড়ি"
+          width="240"
+          height="230"
+        />
+      </section>
+      {isSnapshot && (
+        <p className="data-notice" role="status">
+          লাইভ ডেটা এখন পাওয়া যাচ্ছে না। সংরক্ষিত নমুনা মূল্য দেখানো হচ্ছে (২২ অক্টোবর ২০২৬)।
+        </p>
+      )}
+      <section className="home-section">
+        <h2>
+          <span className="up">▲</span> আজ দাম বেড়েছে
+        </h2>
+        <ProductGrid products={movers(products, 'up')} />
+      </section>
+      <section className="home-section">
+        <h2>
+          <span className="down">▼</span> আজ দাম কমেছে
+        </h2>
+        <ProductGrid products={movers(products, 'down')} />
+      </section>
+      <section className="home-section all-products" id="সব-পণ্য">
+        <h2>সব পণ্য</h2>
+        <p className="section-subtitle">মোট {bn(products.length)}টি পণ্য দেখানো হচ্ছে</p>
+        <ProductGrid products={products} />
+      </section>
+    </div>
+  );
+}

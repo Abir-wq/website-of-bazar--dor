@@ -1,10 +1,109 @@
 'use client';
 import Link from 'next/link';
-import {useRouter} from 'next/navigation';
-import {useEffect,useState,type FormEvent} from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState, type FormEvent } from 'react';
 import toast from 'react-hot-toast';
-import {authClient} from '@/lib/auth-client';
-import {Avatar} from './header';
-type User={name:string;email:string;image?:string|null};
-export function Profile({user,updateOnly=false}:{user:User;updateOnly?:boolean}){const router=useRouter();const {data:session}=authClient.useSession();const current=session?.user||user;const [name,setName]=useState(user.name),[busy,setBusy]=useState(false);useEffect(()=>{setName(current.name);},[current.name]);async function update(e:FormEvent){e.preventDefault();if(name.trim().length<2){toast.error('কমপক্ষে ২ অক্ষরের নাম লিখুন।');return;}setBusy(true);try{const result=await authClient.updateUser({name:name.trim()});if(result.error){toast.error('নাম পরিবর্তন করা যায়নি।');return;}toast.success('আপনার তথ্য আপডেট হয়েছে।');await authClient.getSession({query:{disableCookieCache:true}});router.refresh();if(updateOnly)router.push('/profile');}catch{toast.error('সংযোগে সমস্যা হয়েছে। আবার চেষ্টা করুন।');}finally{setBusy(false);}}async function logout(){setBusy(true);try{const result=await authClient.signOut();if(result.error){toast.error('সাইন আউট করা যায়নি।');return;}toast.success('সাইন আউট হয়েছে।');router.push('/');router.refresh();}catch{toast.error('সংযোগে সমস্যা হয়েছে।');}finally{setBusy(false);}}
-return <div className="profile-page"><div className="profile-heading"><h1>{updateOnly?'তথ্য আপডেট করুন':'আমার প্রোফাইল'}</h1><p>{updateOnly?'আপনার নাম পরিবর্তন করুন।':'আপনার অ্যাকাউন্টের তথ্য এখানে দেখুন।'}</p></div><section className="profile-account panel"><Avatar name={current.name} image={current.image} large/><div className="account-text"><h2>{current.name}</h2><p>{current.email}</p></div><button className="outline-danger" onClick={logout} disabled={busy}>↩ সাইন আউট</button></section><section className="profile-info panel"><div className="info-heading"><h2>তথ্য</h2>{!updateOnly&&<Link href="/profile/update" className="edit-link">তথ্য পরিবর্তন করুন ↗</Link>}</div><form onSubmit={update} aria-busy={busy}><div className="field"><label htmlFor="profile-name">নাম</label><input id="profile-name" name="name" value={name} onChange={e=>setName(e.target.value)} autoComplete="name" minLength={2} maxLength={100} required/></div><button className="button full-width" disabled={busy}>{busy?'অপেক্ষা করুন…':updateOnly?'তথ্য আপডেট করুন':'আপডেট'}</button></form></section>{updateOnly&&<Link className="back-home" href="/profile">← প্রোফাইলে ফিরে যান</Link>}</div>;}
+import { authClient } from '@/lib/auth-client';
+import { Avatar } from './header';
+type User = { name: string; email: string; image?: string | null };
+export function Profile({ user, updateOnly = false }: { user: User; updateOnly?: boolean }) {
+  const router = useRouter();
+  const { data: session } = authClient.useSession();
+  const current = session?.user || user;
+  const [name, setName] = useState(user.name),
+    [busy, setBusy] = useState(false);
+  useEffect(() => {
+    setName(current.name);
+  }, [current.name]);
+  async function update(e: FormEvent) {
+    e.preventDefault();
+    if (name.trim().length < 2) {
+      toast.error('কমপক্ষে ২ অক্ষরের নাম লিখুন।');
+      return;
+    }
+    setBusy(true);
+    try {
+      const result = await authClient.updateUser({ name: name.trim() });
+      if (result.error) {
+        toast.error('নাম পরিবর্তন করা যায়নি।');
+        return;
+      }
+      toast.success('আপনার তথ্য আপডেট হয়েছে।');
+      await authClient.getSession({ query: { disableCookieCache: true } });
+      router.refresh();
+      if (updateOnly) router.push('/profile');
+    } catch {
+      toast.error('সংযোগে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function logout() {
+    setBusy(true);
+    try {
+      const result = await authClient.signOut();
+      if (result.error) {
+        toast.error('সাইন আউট করা যায়নি।');
+        return;
+      }
+      toast.success('সাইন আউট হয়েছে।');
+      router.push('/');
+      router.refresh();
+    } catch {
+      toast.error('সংযোগে সমস্যা হয়েছে।');
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="profile-page">
+      <div className="profile-heading">
+        <h1>{updateOnly ? 'তথ্য আপডেট করুন' : 'আমার প্রোফাইল'}</h1>
+        <p>{updateOnly ? 'আপনার নাম পরিবর্তন করুন।' : 'আপনার অ্যাকাউন্টের তথ্য এখানে দেখুন।'}</p>
+      </div>
+      <section className="profile-account panel">
+        <Avatar name={current.name} image={current.image} large />
+        <div className="account-text">
+          <h2>{current.name}</h2>
+          <p>{current.email}</p>
+        </div>
+        <button className="outline-danger" onClick={logout} disabled={busy}>
+          ↩ সাইন আউট
+        </button>
+      </section>
+      <section className="profile-info panel">
+        <div className="info-heading">
+          <h2>তথ্য</h2>
+          {!updateOnly && (
+            <Link href="/profile/update" className="edit-link">
+              তথ্য পরিবর্তন করুন ↗
+            </Link>
+          )}
+        </div>
+        <form onSubmit={update} aria-busy={busy}>
+          <div className="field">
+            <label htmlFor="profile-name">নাম</label>
+            <input
+              id="profile-name"
+              name="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              autoComplete="name"
+              minLength={2}
+              maxLength={100}
+              required
+            />
+          </div>
+          <button className="button full-width" disabled={busy}>
+            {busy ? 'অপেক্ষা করুন…' : updateOnly ? 'তথ্য আপডেট করুন' : 'আপডেট'}
+          </button>
+        </form>
+      </section>
+      {updateOnly && (
+        <Link className="back-home" href="/profile">
+          ← প্রোফাইলে ফিরে যান
+        </Link>
+      )}
+    </div>
+  );
+}

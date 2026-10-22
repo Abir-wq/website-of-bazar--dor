@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test tests/*.test.ts",
     "test:smoke": "node scripts/smoke.mjs",
-    "test:auth": "node --conditions=react-server --import tsx tests/auth-integration.ts"
+    "test:auth": "node --conditions=react-server --import tsx tests/auth-integration.ts",
+    "format": "prettier --write src scripts tests *.ts *.mjs *.json README.md SETUP-BN.md VALIDATION.md"
   },
   "dependencies": {
     "better-auth": "1.7.12",
@@ -27,6 +28,7 @@
     "@types/node": "^24.0.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "prettier": "3.8.1",
     "tailwindcss": "^4.1.0",
     "tsx": "^4.20.0",
     "typescript": "^5.9.3"

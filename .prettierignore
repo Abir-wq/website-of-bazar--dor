@@ -1,0 +1,5 @@
+node_modules
+.next
+src/data/products.json
+package-lock.json
+design

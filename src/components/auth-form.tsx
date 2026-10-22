@@ -1,20 +1,234 @@
 'use client';
 import Link from 'next/link';
-import {useRouter,useSearchParams} from 'next/navigation';
-import {useEffect,useRef,useState,type FormEvent} from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import toast from 'react-hot-toast';
-import {authClient} from '@/lib/auth-client';
-export function safeNext(value:string|null){return value && value.startsWith('/') && !value.startsWith('//') && !value.includes('\\') ? value : '/';}
-function translateError(code?:string){const messages:Record<string,string>={INVALID_EMAIL_OR_PASSWORD:'ইমেইল অথবা পাসওয়ার্ড সঠিক নয়।',USER_ALREADY_EXISTS:'এই ইমেইলে ইতিমধ্যে অ্যাকাউন্ট আছে।',USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL:'এই ইমেইলে ইতিমধ্যে অ্যাকাউন্ট আছে।',PASSWORD_TOO_SHORT:'পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে।',INVALID_EMAIL:'সঠিক ইমেইল ঠিকানা লিখুন।',TOO_MANY_REQUESTS:'অনেকবার চেষ্টা করা হয়েছে। একটু পরে আবার চেষ্টা করুন।'};return messages[code||''] || 'অনুরোধটি সম্পন্ন হয়নি। তথ্য যাচাই করে আবার চেষ্টা করুন।';}
-function GoogleIcon(){return <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="#4285F4" d="M21.6 12.2c0-.7-.1-1.4-.2-2.1H12v4h5.4a4.7 4.7 0 0 1-2 3.1v2.6h3.3c1.9-1.8 2.9-4.4 2.9-7.6Z"/><path fill="#34A853" d="M12 22c2.7 0 5-.9 6.7-2.4l-3.3-2.6c-.9.6-2 1-3.4 1-2.6 0-4.8-1.8-5.6-4.1H3v2.6A10 10 0 0 0 12 22Z"/><path fill="#FBBC05" d="M6.4 13.9A6 6 0 0 1 6 12c0-.7.1-1.3.4-1.9V7.5H3A10 10 0 0 0 2 12c0 1.6.4 3.1 1 4.5l3.4-2.6Z"/><path fill="#EA4335" d="M12 6c1.5 0 2.8.5 3.8 1.5l2.9-2.9A9.7 9.7 0 0 0 12 2a10 10 0 0 0-9 5.5l3.4 2.6C7.2 7.8 9.4 6 12 6Z"/></svg>;}
-function GithubIcon(){return <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 .8a11.3 11.3 0 0 0-3.6 22c.6.1.8-.2.8-.5v-2.1c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.1.1 1.7 1.2 1.7 1.2 1 1.7 2.6 1.2 3.3.9.1-.7.4-1.2.7-1.4-2.6-.3-5.3-1.3-5.3-5.6 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.1 1.2a11 11 0 0 1 5.7 0C16.8 5 17.8 5.3 17.8 5.3c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.3-2.6 5.3-5.2 5.6.4.4.8 1.1.8 2.1v3.1c0 .3.2.6.8.5A11.3 11.3 0 0 0 12 .8Z"/></svg>;}
-export function AuthForm({mode,providers}:{mode:'signin'|'signup';providers:{google:boolean;github:boolean}}){
- const signup=mode==='signup',router=useRouter(),params=useSearchParams();
- const [busy,setBusy]=useState(false),[error,setError]=useState('');const shown=useRef(false);
- const next=safeNext(params.get('next'));
- useEffect(()=>{if(shown.current)return;shown.current=true;if(params.get('reason')==='protected')toast.error('বিস্তারিত দেখতে আগে সাইন ইন করুন।',{id:'protected-route'});if(params.has('error')){setError('সোশ্যাল সাইন ইন সম্পন্ন হয়নি। আবার চেষ্টা করুন।');toast.error('সোশ্যাল সাইন ইন সম্পন্ন হয়নি।');}},[params]);
- function fail(message:string){setError(message);toast.error(message);}
- async function submit(e:FormEvent<HTMLFormElement>){e.preventDefault();setError('');const form=new FormData(e.currentTarget);const email=String(form.get('email')||'').trim(),password=String(form.get('password')||''),name=String(form.get('name')||'').trim();if(signup && name.length<2)return fail('কমপক্ষে ২ অক্ষরের নাম লিখুন।');if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return fail('সঠিক ইমেইল ঠিকানা লিখুন।');if(password.length<8)return fail('পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে।');if(signup && password!==form.get('confirmPassword'))return fail('পাসওয়ার্ড দুটি মিলছে না।');setBusy(true);try{const result=signup?await authClient.signUp.email({name,email,password}):await authClient.signIn.email({email,password});if(result.error)return fail(translateError(result.error.code));toast.success(signup?'অ্যাকাউন্ট তৈরি হয়েছে। এবার সাইন ইন করুন।':'সফলভাবে সাইন ইন হয়েছে।');router.push(signup?`/signin${next!=='/'?`?next=${encodeURIComponent(next)}`:''}`:next);router.refresh();}catch{fail('সার্ভারের সাথে সংযোগ করা যায়নি। আবার চেষ্টা করুন।');}finally{setBusy(false);}}
- async function social(provider:'google'|'github'){if(!providers[provider]){fail(`${provider==='google'?'Google':'GitHub'} সাইন ইন এখনো কনফিগার করা হয়নি। আপাতত ইমেইল দিয়ে অ্যাকাউন্ট খুলুন।`);return;}setBusy(true);try{const result=await authClient.signIn.social({provider,callbackURL:next,errorCallbackURL:`/signin?error=oauth&next=${encodeURIComponent(next)}`});if(result.error){fail('সোশ্যাল সাইন ইন শুরু করা যায়নি।');setBusy(false);}}catch{fail('সোশ্যাল সাইন ইন শুরু করা যায়নি।');setBusy(false);}}
- return <div className={`auth-page ${signup?'signup-page':''}`}><div className="auth-heading"><h1>{signup?'অ্যাকাউন্ট তৈরি করুন':'সাইন ইন'}</h1><p>{signup?'বিনা খরচে সাইন আপ করে সব বিস্তারিত দাম দেখুন।':'বিস্তারিত দাম, বাজার তুলনা ও প্রোফাইল দেখতে অ্যাকাউন্টে ঢুকুন।'}</p></div><div className="auth-card panel"><form onSubmit={submit} noValidate aria-busy={busy}>{signup&&<div className="field"><label htmlFor="name">নাম</label><input id="name" name="name" placeholder="যেমন: রহিম উদ্দিন" autoComplete="name" required minLength={2} maxLength={100}/></div>}<div className="field"><label htmlFor="email">ইমেইল</label><input id="email" name="email" type="email" placeholder="you@example.com" autoComplete="email" required maxLength={254}/></div><div className="field"><label htmlFor="password">পাসওয়ার্ড</label><input id="password" name="password" type="password" placeholder="কমপক্ষে ৮ অক্ষর" minLength={8} maxLength={128} autoComplete={signup?'new-password':'current-password'} required/></div>{signup&&<div className="field"><label htmlFor="confirm-password">পাসওয়ার্ড নিশ্চিত করুন</label><input id="confirm-password" name="confirmPassword" type="password" placeholder="আবার লিখুন" autoComplete="new-password" minLength={8} maxLength={128} required/></div>}{error&&<p className="form-error" role="alert">{error}</p>}<button className="button full-width" type="submit" disabled={busy}>{busy?'অপেক্ষা করুন…':signup?'অ্যাকাউন্ট তৈরি করুন':'সাইন ইন'}</button></form><div className="divider"><span>অথবা</span></div><div className="social-buttons"><button className="social-button" onClick={()=>social('google')} disabled={busy}><GoogleIcon/> Google দিয়ে চালিয়ে যান</button><button className="social-button" onClick={()=>social('github')} disabled={busy}><GithubIcon/> GitHub দিয়ে চালিয়ে যান</button></div><p className="auth-switch">{signup?'অ্যাকাউন্ট আছে?':'অ্যাকাউন্ট নেই?'} <Link href={`${signup?'/signin':'/signup'}${next!=='/'?`?next=${encodeURIComponent(next)}`:''}`}>{signup?'সাইন ইন করুন':'সাইন আপ করুন'}</Link></p></div><Link href="/" className="back-home">← হোম পেজে ফিরে যান</Link></div>;
+import { authClient } from '@/lib/auth-client';
+export function safeNext(value: string | null) {
+  return value && value.startsWith('/') && !value.startsWith('//') && !value.includes('\\')
+    ? value
+    : '/';
+}
+function translateError(code?: string) {
+  const messages: Record<string, string> = {
+    INVALID_EMAIL_OR_PASSWORD: 'ইমেইল অথবা পাসওয়ার্ড সঠিক নয়।',
+    USER_ALREADY_EXISTS: 'এই ইমেইলে ইতিমধ্যে অ্যাকাউন্ট আছে।',
+    USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL: 'এই ইমেইলে ইতিমধ্যে অ্যাকাউন্ট আছে।',
+    PASSWORD_TOO_SHORT: 'পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে।',
+    INVALID_EMAIL: 'সঠিক ইমেইল ঠিকানা লিখুন।',
+    TOO_MANY_REQUESTS: 'অনেকবার চেষ্টা করা হয়েছে। একটু পরে আবার চেষ্টা করুন।',
+  };
+  return messages[code || ''] || 'অনুরোধটি সম্পন্ন হয়নি। তথ্য যাচাই করে আবার চেষ্টা করুন।';
+}
+function GoogleIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+      <path
+        fill="#4285F4"
+        d="M21.6 12.2c0-.7-.1-1.4-.2-2.1H12v4h5.4a4.7 4.7 0 0 1-2 3.1v2.6h3.3c1.9-1.8 2.9-4.4 2.9-7.6Z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 22c2.7 0 5-.9 6.7-2.4l-3.3-2.6c-.9.6-2 1-3.4 1-2.6 0-4.8-1.8-5.6-4.1H3v2.6A10 10 0 0 0 12 22Z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M6.4 13.9A6 6 0 0 1 6 12c0-.7.1-1.3.4-1.9V7.5H3A10 10 0 0 0 2 12c0 1.6.4 3.1 1 4.5l3.4-2.6Z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 6c1.5 0 2.8.5 3.8 1.5l2.9-2.9A9.7 9.7 0 0 0 12 2a10 10 0 0 0-9 5.5l3.4 2.6C7.2 7.8 9.4 6 12 6Z"
+      />
+    </svg>
+  );
+}
+function GithubIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+      <path d="M12 .8a11.3 11.3 0 0 0-3.6 22c.6.1.8-.2.8-.5v-2.1c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.1.1 1.7 1.2 1.7 1.2 1 1.7 2.6 1.2 3.3.9.1-.7.4-1.2.7-1.4-2.6-.3-5.3-1.3-5.3-5.6 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.1 1.2a11 11 0 0 1 5.7 0C16.8 5 17.8 5.3 17.8 5.3c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.3-2.6 5.3-5.2 5.6.4.4.8 1.1.8 2.1v3.1c0 .3.2.6.8.5A11.3 11.3 0 0 0 12 .8Z" />
+    </svg>
+  );
+}
+export function AuthForm({
+  mode,
+  providers,
+}: {
+  mode: 'signin' | 'signup';
+  providers: { google: boolean; github: boolean };
+}) {
+  const signup = mode === 'signup',
+    router = useRouter(),
+    params = useSearchParams();
+  const [busy, setBusy] = useState(false),
+    [error, setError] = useState('');
+  const shown = useRef(false);
+  const next = safeNext(params.get('next'));
+  useEffect(() => {
+    if (shown.current) return;
+    shown.current = true;
+    if (params.get('reason') === 'protected')
+      toast.error('বিস্তারিত দেখতে আগে সাইন ইন করুন।', { id: 'protected-route' });
+    if (params.has('error')) {
+      setError('সোশ্যাল সাইন ইন সম্পন্ন হয়নি। আবার চেষ্টা করুন।');
+      toast.error('সোশ্যাল সাইন ইন সম্পন্ন হয়নি।');
+    }
+  }, [params]);
+  function fail(message: string) {
+    setError(message);
+    toast.error(message);
+  }
+  async function submit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError('');
+    const form = new FormData(e.currentTarget);
+    const email = String(form.get('email') || '').trim(),
+      password = String(form.get('password') || ''),
+      name = String(form.get('name') || '').trim();
+    if (signup && name.length < 2) return fail('কমপক্ষে ২ অক্ষরের নাম লিখুন।');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail('সঠিক ইমেইল ঠিকানা লিখুন।');
+    if (password.length < 8) return fail('পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে।');
+    if (signup && password !== form.get('confirmPassword'))
+      return fail('পাসওয়ার্ড দুটি মিলছে না।');
+    setBusy(true);
+    try {
+      const result = signup
+        ? await authClient.signUp.email({ name, email, password })
+        : await authClient.signIn.email({ email, password });
+      if (result.error) return fail(translateError(result.error.code));
+      toast.success(
+        signup ? 'অ্যাকাউন্ট তৈরি হয়েছে। এবার সাইন ইন করুন।' : 'সফলভাবে সাইন ইন হয়েছে।',
+      );
+      router.push(
+        signup ? `/signin${next !== '/' ? `?next=${encodeURIComponent(next)}` : ''}` : next,
+      );
+      router.refresh();
+    } catch {
+      fail('সার্ভারের সাথে সংযোগ করা যায়নি। আবার চেষ্টা করুন।');
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function social(provider: 'google' | 'github') {
+    if (!providers[provider]) {
+      fail(
+        `${provider === 'google' ? 'Google' : 'GitHub'} সাইন ইন এখনো কনফিগার করা হয়নি। আপাতত ইমেইল দিয়ে অ্যাকাউন্ট খুলুন।`,
+      );
+      return;
+    }
+    setBusy(true);
+    try {
+      const result = await authClient.signIn.social({
+        provider,
+        callbackURL: next,
+        errorCallbackURL: `/signin?error=oauth&next=${encodeURIComponent(next)}`,
+      });
+      if (result.error) {
+        fail('সোশ্যাল সাইন ইন শুরু করা যায়নি।');
+        setBusy(false);
+      }
+    } catch {
+      fail('সোশ্যাল সাইন ইন শুরু করা যায়নি।');
+      setBusy(false);
+    }
+  }
+  return (
+    <div className={`auth-page ${signup ? 'signup-page' : ''}`}>
+      <div className="auth-heading">
+        <h1>{signup ? 'অ্যাকাউন্ট তৈরি করুন' : 'সাইন ইন'}</h1>
+        <p>
+          {signup
+            ? 'বিনা খরচে সাইন আপ করে সব বিস্তারিত দাম দেখুন।'
+            : 'বিস্তারিত দাম, বাজার তুলনা ও প্রোফাইল দেখতে অ্যাকাউন্টে ঢুকুন।'}
+        </p>
+      </div>
+      <div className="auth-card panel">
+        <form onSubmit={submit} noValidate aria-busy={busy}>
+          {signup && (
+            <div className="field">
+              <label htmlFor="name">নাম</label>
+              <input
+                id="name"
+                name="name"
+                placeholder="যেমন: রহিম উদ্দিন"
+                autoComplete="name"
+                required
+                minLength={2}
+                maxLength={100}
+              />
+            </div>
+          )}
+          <div className="field">
+            <label htmlFor="email">ইমেইল</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="you@example.com"
+              autoComplete="email"
+              required
+              maxLength={254}
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="password">পাসওয়ার্ড</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="কমপক্ষে ৮ অক্ষর"
+              minLength={8}
+              maxLength={128}
+              autoComplete={signup ? 'new-password' : 'current-password'}
+              required
+            />
+          </div>
+          {signup && (
+            <div className="field">
+              <label htmlFor="confirm-password">পাসওয়ার্ড নিশ্চিত করুন</label>
+              <input
+                id="confirm-password"
+                name="confirmPassword"
+                type="password"
+                placeholder="আবার লিখুন"
+                autoComplete="new-password"
+                minLength={8}
+                maxLength={128}
+                required
+              />
+            </div>
+          )}
+          {error && (
+            <p className="form-error" role="alert">
+              {error}
+            </p>
+          )}
+          <button className="button full-width" type="submit" disabled={busy}>
+            {busy ? 'অপেক্ষা করুন…' : signup ? 'অ্যাকাউন্ট তৈরি করুন' : 'সাইন ইন'}
+          </button>
+        </form>
+        <div className="divider">
+          <span>অথবা</span>
+        </div>
+        <div className="social-buttons">
+          <button className="social-button" onClick={() => social('google')} disabled={busy}>
+            <GoogleIcon /> Google দিয়ে চালিয়ে যান
+          </button>
+          <button className="social-button" onClick={() => social('github')} disabled={busy}>
+            <GithubIcon /> GitHub দিয়ে চালিয়ে যান
+          </button>
+        </div>
+        <p className="auth-switch">
+          {signup ? 'অ্যাকাউন্ট আছে?' : 'অ্যাকাউন্ট নেই?'}{' '}
+          <Link
+            href={`${signup ? '/signin' : '/signup'}${next !== '/' ? `?next=${encodeURIComponent(next)}` : ''}`}
+          >
+            {signup ? 'সাইন ইন করুন' : 'সাইন আপ করুন'}
+          </Link>
+        </p>
+      </div>
+      <Link href="/" className="back-home">
+        ← হোম পেজে ফিরে যান
+      </Link>
+    </div>
+  );
 }
