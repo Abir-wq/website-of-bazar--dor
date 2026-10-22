@@ -1,7 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from 'react';
 import toast from 'react-hot-toast';
 import { bn, unit, type Product } from '@/lib/catalog';
 import {
@@ -74,10 +81,36 @@ export function CartProvider({ children }: { children: ReactNode }) {
     </CartContext.Provider>
   );
 }
+function subscribeToHydration() {
+  return () => {};
+}
+
+function getClientSnapshot() {
+  return true;
+}
+
+function getServerSnapshot() {
+  return false;
+}
+
 function useCart() {
   const context = useContext(CartContext);
-  if (!context) throw new Error('Cart components must be inside CartProvider.');
-  return context;
+
+  const hydrated = useSyncExternalStore(
+    subscribeToHydration,
+    getClientSnapshot,
+    getServerSnapshot,
+  );
+
+  if (!context) {
+    throw new Error('Cart components must be inside CartProvider.');
+  }
+
+  return {
+    ...context,
+    items: hydrated ? context.items : [],
+    ready: hydrated && context.ready,
+  };
 }
 
 export function CartLink() {

@@ -6,3 +6,5 @@ out/
 .env.*.local
 data/*.db*
 *.tsbuildinfo
+
+bazar-dor-history.bundle
